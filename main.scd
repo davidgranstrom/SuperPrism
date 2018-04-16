@@ -1,5 +1,6 @@
 (
     var kNUM_CHANNELS = 24;
+    var kOutputOffset = 6;
 
     q = q ? ();
 
@@ -80,7 +81,7 @@
         SynthDef(\mainout, {arg amp=1, out;
             var sig = self.srcBus.ar();
             sig = sig.sanitize;
-            // Out.ar(out, amp * sig);
+            Out.ar(out, amp * sig);
         }).add;
     };
 
@@ -94,7 +95,7 @@
 
         Synth.head(self.diffusionGroup, \diffuser, [\in, self.srcBus, \out, 0, \pos, self.analyzerBuses.lpf.asMap]);
 
-        Synth.tail(self.masterGroup, \mainout, [\out, 0]);
+        Synth.tail(self.masterGroup, \mainout, [\out, kOutputOffset]);
     };
 
     q.dealloc = {|self|
