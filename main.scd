@@ -1,31 +1,62 @@
 (
-    var kNUM_CHANNELS = 24;
-    var kOutputOffset = 6;
+    var kNUM_CHANNELS = 8;
+    var kOUTPUT_OFFSET = 6;
 
     q = q ? ();
 
-    s.options.numOutputBusChannels = kNUM_CHANNELS;
+    s.options.numOutputBusChannels = 24; // adjust to interface max output channels
 
     q.init = {|self|
         self.path = "~/code/supercollider/intonal".standardizePath;
 
-        self.srcBus = Bus.audio(s, 2);
-        // self.analyzerBus = Bus.control(s, 3);
+        self.analyzerInputBus = Bus.audio(s, 2);
         self.analyzerBuses = ();
         self.analyzerBuses.lpf = Bus.control(s, 1);
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
+        self.outputBuses = { Bus.audio(s, 1) }.dup(kNUM_CHANNELS);
+
         self.srcGroup = Group.new;
         self.fxGroup = Group.after(self.srcGroup);
         self.diffusionGroup = Group.after(self.fxGroup);
+        // diffusors
+        self.ampmodGroup = Group.tail(self.diffusionGroup);
+        self.muterGroup = Group.tail(self.diffusionGroup);
+        // master
         self.masterGroup = Group.after(self.diffusionGroup);
 
         self.loadSoundFile;
         self.makeSynthDefs;
         s.sync;
 
+        self.initController;
+        self.makeDiffusors;
         self.start;
+    };
+
+    q.initController = {|self|
+        var ampSpec = \amp.asSpec;
+        var ampModSpec = ControlSpec(1/2, 16, \exp);
+
+        if (self.nano.isNil) {
+            self.nano = NanoKontrol2();
+
+            self.nano.fader1.onChange = {arg val;
+                var amount = ampSpec.map(val / 127);
+                self.muterGroup.set(\drywet, amount);
+            };
+
+            self.nano.fader2.onChange = {arg val;
+                var amount = ampSpec.map(val / 127);
+                self.ampmodGroup.set(\drywet, amount);
+            };
+
+            self.nano.knob2.onChange = {arg val;
+                var freq = ampModSpec.map(val / 127);
+                self.ampmodGroup.set(\freq, freq);
+            };
+        };
     };
 
     q.loadSoundFile = {|self|
@@ -36,13 +67,18 @@
     };
 
     q.makeSynthDefs = {|self|
-        SynthDef(\diskin, {arg buf, amp=1, out;
+        SynthDef(\diskin, {arg buf, amp=1, analyzerOut;
             var sig = VDiskIn.ar(2, buf, BufRateScale.kr(buf));
-            Out.ar(out, amp * sig);
+
+            self.outputBuses.do {|bus, i|
+                Out.ar(bus, sig.wrapAt(i));
+            };
+
+            Out.ar(self.analyzerInputBus, sig);
         }).add;
 
         SynthDef(\analyzer, {arg buf, amp=1, out;
-            var sig = self.srcBus.ar().sum;
+            var sig = self.analyzerInputBus.ar().sum;
             var buses = [
                 self.analyzerBuses.lpf,
                 self.analyzerBuses.bpf,
@@ -66,41 +102,60 @@
             };
         }).add;
 
-        SynthDef(\diffuser, {arg amp=1, in, pos, out;
-            var sig = In.ar(in, 1);
-            // sig = PanAz.ar(kNUM_CHANNELS, sig, pos.lag(4));
-            sig = PanAz.ar(kNUM_CHANNELS, sig, LFSaw.ar(1/5));
-            Out.ar(out, amp * sig);
+        SynthDef(\ampmod, {arg freq=3, bus, xfade=1, drywet=1;
+            var input = In.ar(bus, 1);
+            var mod = SinOsc.ar(freq);
+            input = input * mod.range(0, 1).cubed;
+            XOut.ar(bus, xfade * drywet, input);
         }).add;
 
-        SynthDef(\fader, {arg amp=1, in, out;
-            var sig = In.ar(in, 1);
-            Out.ar(out, amp * sig);
+        SynthDef(\muter, {arg xfade=1, drywet=1, bus;
+            var sig = In.ar(bus, 1);
+            var mod = Silent.ar(1);
+            sig = sig * mod;
+            XOut.ar(bus, xfade * drywet, sig);
         }).add;
 
         SynthDef(\mainout, {arg amp=1, out;
-            var sig = self.srcBus.ar();
+            var sig = self.outputBuses.collect(In.ar(_,1));
             sig = sig.sanitize;
             Out.ar(out, amp * sig);
         }).add;
     };
 
-    q.makePatterns = {|self|
+    q.makeDiffusors = {|self|
+        var muters = self.outputBuses.collect {|bus|
+            Pmono(
+                \muter,
+                \group, self.muterGroup,
+                \bus, bus,
+                \xfade, Prand([ 0, 1 ], inf),
+                \dur, Pwhite(0.125, 0.5),
+                \legato, 1.0,
+            );
+        };
 
+        var ampmods = self.outputBuses.collect {|bus|
+            Synth.head(self.ampmodGroup, \ampmod, [
+                \freq, rrand(1/5, 14.0),
+                \bus, bus,
+                \xfade, 1,
+            ]);
+        };
+
+        // Ppar(p).play;
     };
 
     q.start = {|self|
-        Synth.head(self.srcGroup, \diskin, [\buf, self.buffer, \out, self.srcBus]);
-        Synth.tail(self.srcGroup, \analyzer, [\out, self.analyzerBus]);
-
-        Synth.head(self.diffusionGroup, \diffuser, [\in, self.srcBus, \out, 0, \pos, self.analyzerBuses.lpf.asMap]);
-
-        Synth.tail(self.masterGroup, \mainout, [\out, kOutputOffset]);
+        Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]);
+        Synth.tail(self.srcGroup, \analyzer);
+        Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
     };
 
     q.dealloc = {|self|
         self.analyzerBuses.do(_.free);
-        self.srcBus.free;
+        self.outputBuses.do(_.free);
+        self.analyzerBus.free;
 
         self.buffer.close;
         self.buffer.free;
@@ -112,4 +167,3 @@
         CmdPeriod.doOnce { q.dealloc; };
     };
 )
-s.meter
