@@ -37,7 +37,7 @@
 
     q.initController = {|self|
         var ampSpec = \amp.asSpec;
-        var ampModSpec = ControlSpec(1/2, 16, \exp);
+        var ampModSpec = ControlSpec(1/2, 14, \exp);
 
         if (self.nano.isNil) {
             self.nano = NanoKontrol2();
@@ -111,9 +111,19 @@
         }).add;
 
         SynthDef(\ampmod, {arg freq=3, bus, xfade=1, drywet=0;
-            var input = In.ar(bus, 1);
-            var mod = SinOsc.ar(freq);
-            input = input * mod.range(0, 1).cubed;
+            var input, ext, mod;
+
+            input = In.ar(bus, 1);
+
+            ext = 1.5 * self.analyzerBuses.lpf.kr;
+            ext = ext.clip(0, 1);
+
+            freq = freq * ext.linlin(0, 1, 0.5, 1.5);
+            mod = SinOsc.ar(freq);
+
+            input = input * mod.range(0, 1);
+            // input = HPF.ar(input, freq.linlin(1/2, 16, 20, 1000).lag(0.1));
+
             XOut.ar(bus, xfade * drywet, input);
         }).add;
 
