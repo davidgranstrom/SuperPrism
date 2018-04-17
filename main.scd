@@ -1,6 +1,5 @@
 // TODO:
 //
-// Control interpolation in SynthDef
 // Main group volume controls
 // FX output bus assignments
 // Reverb FX
@@ -26,22 +25,8 @@
 
         self.outputBuses = { Bus.audio(s, 1) }.dup(kNUM_CHANNELS);
 
-        self.srcGroup = Group.new;
-        self.fxGroup = Group.after(self.srcGroup);
-        self.diffusionGroup = Group.after(self.fxGroup);
-
-        // diffusers
-        self.grainGroup = Group.tail(self.diffusionGroup);
-        self.ampmodGroup = Group.tail(self.diffusionGroup);
-        self.gateGroup = Group.tail(self.diffusionGroup);
-        self.muterGroup = Group.tail(self.diffusionGroup);
-
-        // master
-        self.masterGroup = Group.after(self.diffusionGroup);
-
-        // init
+        self.createGroups;
         self.loadSoundFile;
-
         // load synthdefs
         (self.path +/+ "synthdefs.scd").load.value(self);
 
@@ -55,6 +40,20 @@
         s.sync;
 
         self.start;
+    };
+
+    q.createGroups = {|self|
+        self.srcGroup = Group.new;
+        self.diffusionGroup = Group.after(self.srcGroup);
+
+        // diffusers
+        self.grainGroup = Group.tail(self.diffusionGroup);
+        self.ampmodGroup = Group.tail(self.diffusionGroup);
+        self.gateGroup = Group.tail(self.diffusionGroup);
+        self.muterGroup = Group.tail(self.diffusionGroup);
+
+        // master
+        self.masterGroup = Group.after(self.diffusionGroup);
     };
 
     q.loadSoundFile = {|self|
@@ -91,7 +90,6 @@
 
     s.waitForBoot {
         q.init;
-        s.sync;
         CmdPeriod.doOnce { q.dealloc; };
     };
 )
