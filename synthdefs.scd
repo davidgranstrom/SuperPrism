@@ -61,14 +61,14 @@
         XOut.ar(bus, env, sig);
     }).add;
 
-    SynthDef(\gate, {arg threshold=0.1, hpfreq=20, drywet=1, bus;
+    SynthDef(\gate, {arg threshold=0.1, hpfreq=20, drywet=0, bus;
         var sig = In.ar(bus, 1);
         sig = HPF.ar(sig, hpfreq);
         sig = Compander.ar(sig, sig, threshold, 20, 1, 0.001, 0.1);
         XOut.ar(bus, drywet, sig);
     }, lagTime.dup(3)).add;
 
-    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=1, bus;
+    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=0, bus;
         var sig = In.ar(bus, 1);
         var ext = 1.5 * self.analyzerBuses.lpf.kr;
 
@@ -83,7 +83,7 @@
     }, lagTime.dup(5)).add;
 
     SynthDef(\grains, {
-        arg drywet=1, fbGain=0, bus;
+        arg drywet=0, fbGain=0, bus;
 
         var input = In.ar(bus, 1);
 
@@ -111,6 +111,16 @@
 
         XOut.ar(bus, drywet, warp);
     }, lagTime.dup(2)).add;
+
+    SynthDef(\reverb, {arg lpfreq=5000, drywet=0, bus;
+        var sig = In.ar(bus, 1);
+        sig = HPF.ar(sig, 30);
+        // sig = DFM1.ar(sig, lpfreq);
+        // TODO: Switch to DFM1
+        sig = RLPF.ar(sig, lpfreq);
+        sig = FreeVerb.ar(sig, 1, 0.95, 0.5);
+        XOut.ar(bus, drywet, sig);
+    }, lagTime.dup(3)).add;
 
     SynthDef(\mainout, {arg amp=1, out;
         var sig = self.outputBuses.collect(In.ar(_,1));

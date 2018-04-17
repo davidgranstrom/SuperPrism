@@ -51,6 +51,7 @@
         self.ampmodGroup = Group.tail(self.diffusionGroup);
         self.gateGroup = Group.tail(self.diffusionGroup);
         self.muterGroup = Group.tail(self.diffusionGroup);
+        self.reverbGroup = Group.tail(self.diffusionGroup);
 
         // master
         self.masterGroup = Group.after(self.diffusionGroup);
@@ -65,8 +66,9 @@
 
     q.start = {|self|
         s.makeBundle(nil, {
+            self.grainSynths.do(_.run);
             self.ampmodSynths.do {|synth| synth.run };
-            self.grainSynths.do {|synth| synth.run };
+            self.reverbSynths.do {|synth| synth.run };
 
             s.sync;
 

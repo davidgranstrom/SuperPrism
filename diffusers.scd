@@ -1,5 +1,5 @@
 {|self|
-    var mutePatterns, ampmods, grains, gates;
+    var mutePatterns, ampmods, grains, gates, reverbs;
 
     mutePatterns = self.outputBuses.collect {|bus|
         Pbind(
@@ -25,7 +25,15 @@
         ], self.grainGroup);
     };
 
+    reverbs = self.outputBuses.collect {|bus|
+        Synth.newPaused(\reverb, [
+            \bus, bus,
+        ], self.reverbGroup);
+    };
+
     self.mutePatterns = Ppar(mutePatterns);
+
     self.ampmodSynths = ampmods;
     self.grainSynths = grains;
+    self.reverbSynths = reverbs;
 };
