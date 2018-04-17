@@ -20,11 +20,13 @@
         self.srcGroup = Group.new;
         self.fxGroup = Group.after(self.srcGroup);
         self.diffusionGroup = Group.after(self.fxGroup);
-        // diffusors
-        self.ampmodGroup = Group.tail(self.diffusionGroup);
+
+        // diffusers
         self.grainGroup = Group.tail(self.diffusionGroup);
+        self.ampmodGroup = Group.tail(self.diffusionGroup);
         self.gateGroup = Group.tail(self.diffusionGroup);
         self.muterGroup = Group.tail(self.diffusionGroup);
+
         // master
         self.masterGroup = Group.after(self.diffusionGroup);
 
@@ -33,19 +35,22 @@
         s.sync;
 
         self.initController;
-        self.makeDiffusors;
+        self.makeDiffusers;
         s.sync;
 
         self.start;
     };
 
     q.initController = {|self|
-        var ampSpec = \amp.asSpec;
-        var ampModSpec = ControlSpec(1/2, 14, \exp);
+        var drywet = \amp.asSpec;
         // var threshSpec = ControlSpec(0.07, 0.3, \exp);
         // var gateHpfFreqSpec = ControlSpec(250, 1000, \exp);
+
+        var ampmod = ();
         var chopper = ();
         var grains = ();
+
+        ampmod.freq = ControlSpec(1/2, 14, \exp);
 
         chopper.density = ControlSpec(8, 14, \exp);
         chopper.hpf = ControlSpec(20, 500, \exp);
@@ -59,7 +64,7 @@
         };
 
         self.nano.fader1.onChange = {arg val;
-            var amount = ampSpec.map(val / 127);
+            var amount = drywet.map(val / 127);
             self.muterGroup.set(\drywet, amount);
         };
 
@@ -72,12 +77,12 @@
         };
 
         self.nano.fader2.onChange = {arg val;
-            var amount = ampSpec.map(val / 127);
+            var amount = drywet.map(val / 127);
             self.ampmodGroup.set(\drywet, amount);
         };
 
         self.nano.knob2.onChange = {arg val;
-            var freq = ampModSpec.map(val / 127);
+            var freq = ampmod.freq.map(val / 127);
             self.ampmodGroup.set(\freq, freq);
         };
 
@@ -113,6 +118,11 @@
 
             fbGain = grains.fbGain.map(val);
             self.grainGroup.set(\fbGain, fbGain);
+        };
+
+        self.nano.fader4.onChange = {arg val;
+            var amount = drywet.map(val / 127);
+            self.grainGroup.set(\drywet, amount);
         };
     };
 
@@ -242,7 +252,7 @@
         }).add;
     };
 
-    q.makeDiffusors = {|self|
+    q.makeDiffusers = {|self|
         var mutePatterns, ampmods, grains, gates;
 
         mutePatterns = self.outputBuses.collect {|bus|
