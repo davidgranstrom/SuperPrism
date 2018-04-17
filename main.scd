@@ -41,21 +41,29 @@
 
         if (self.nano.isNil) {
             self.nano = NanoKontrol2();
+        };
 
-            self.nano.fader1.onChange = {arg val;
-                var amount = ampSpec.map(val / 127);
-                self.muterGroup.set(\drywet, amount);
-            };
+        self.nano.fader1.onChange = {arg val;
+            var amount = ampSpec.map(val / 127);
+            self.muterGroup.set(\drywet, amount);
+        };
 
-            self.nano.fader2.onChange = {arg val;
-                var amount = ampSpec.map(val / 127);
-                self.ampmodGroup.set(\drywet, amount);
+        self.nano.sBtn1.onPress = {
+            if (self.mutePatterns.isPlaying) {
+                self.mutePatterns.stop;
+            } {
+                self.mutePatterns = self.mutePatterns.play;
             };
+        };
 
-            self.nano.knob2.onChange = {arg val;
-                var freq = ampModSpec.map(val / 127);
-                self.ampmodGroup.set(\freq, freq);
-            };
+        self.nano.fader2.onChange = {arg val;
+            var amount = ampSpec.map(val / 127);
+            self.ampmodGroup.set(\drywet, amount);
+        };
+
+        self.nano.knob2.onChange = {arg val;
+            var freq = ampModSpec.map(val / 127);
+            self.ampmodGroup.set(\freq, freq);
         };
     };
 
@@ -102,18 +110,19 @@
             };
         }).add;
 
-        SynthDef(\ampmod, {arg freq=3, bus, xfade=1, drywet=1;
+        SynthDef(\ampmod, {arg freq=3, bus, xfade=1, drywet=0;
             var input = In.ar(bus, 1);
             var mod = SinOsc.ar(freq);
             input = input * mod.range(0, 1).cubed;
             XOut.ar(bus, xfade * drywet, input);
         }).add;
 
-        SynthDef(\muter, {arg xfade=1, drywet=1, bus;
+        SynthDef(\muter, {arg xfade=1, drywet=1, bus, gate=1;
             var sig = In.ar(bus, 1);
             var mod = Silent.ar(1);
+            var env = Env.asr(0.01, 1, 0.01, \sine).kr(Done.freeSelf, gate);
             sig = sig * mod;
-            XOut.ar(bus, xfade * drywet, sig);
+            XOut.ar(bus, env * xfade * drywet, sig);
         }).add;
 
         SynthDef(\mainout, {arg amp=1, out;
@@ -125,8 +134,8 @@
 
     q.makeDiffusors = {|self|
         var muters = self.outputBuses.collect {|bus|
-            Pmono(
-                \muter,
+            Pbind(
+                \instrument, \muter,
                 \group, self.muterGroup,
                 \bus, bus,
                 \xfade, Prand([ 0, 1 ], inf),
@@ -135,15 +144,16 @@
             );
         };
 
-        var ampmods = self.outputBuses.collect {|bus|
-            Synth.head(self.ampmodGroup, \ampmod, [
-                \freq, rrand(1/5, 14.0),
-                \bus, bus,
-                \xfade, 1,
-            ]);
+        s.bind {
+            self.outputBuses.do {|bus|
+                Synth.head(self.ampmodGroup, \ampmod, [
+                    \freq, rrand(1/5, 14.0),
+                    \bus, bus,
+                ]);
+            };
         };
 
-        // Ppar(p).play;
+        self.mutePatterns = Ppar(muters);
     };
 
     q.start = {|self|
