@@ -1,3 +1,11 @@
+// TODO:
+//
+// Control interpolation in SynthDef
+// Main group volume controls
+// FX output bus assignments
+// Reverb FX
+// Fix gate FX
+
 (
     var kNUM_CHANNELS = 8;
     var kOUTPUT_OFFSET = 6;
