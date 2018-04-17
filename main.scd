@@ -8,6 +8,7 @@
 (
     var kNUM_CHANNELS = 2;
     var kOUTPUT_OFFSET = 6;
+    var kINPUT_FILE = "waning-moon.wav";
 
     q = q ? ();
 
@@ -58,7 +59,7 @@
     };
 
     q.loadSoundFile = {|self|
-        var path = self.path +/+ "audio/waning-moon.wav";
+        var path = self.path +/+ "audio" +/+ kINPUT_FILE;
         var bufferSize = 2 ** 19;
 
         self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
