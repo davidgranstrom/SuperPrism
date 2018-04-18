@@ -1,7 +1,7 @@
 {|self|
     var mutePatterns, ampmods, grains, gates, reverbs;
 
-    mutePatterns = self.outputBuses.collect {|bus|
+    mutePatterns = self.srcBuses.collect {|bus|
         Pbind(
             \instrument, \mute,
             \group, self.muterGroup,
@@ -12,20 +12,20 @@
         );
     };
 
-    ampmods = self.outputBuses.collect {|bus|
+    ampmods = self.srcBuses.collect {|bus|
         Synth.newPaused(\ampmod, [
             \freq, rrand(1/5, 14.0),
             \bus, bus,
         ], self.ampmodGroup);
     };
 
-    grains = self.outputBuses.collect {|bus|
+    grains = self.srcBuses.collect {|bus|
         Synth.newPaused(\grains, [
             \bus, bus,
         ], self.grainGroup);
     };
 
-    reverbs = self.outputBuses.collect {|bus|
+    reverbs = self.srcBuses.collect {|bus|
         Synth.newPaused(\reverb, [
             \bus, bus,
         ], self.reverbGroup);

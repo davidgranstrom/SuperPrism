@@ -4,7 +4,7 @@
     SynthDef(\diskin, {arg buf, amp=1, analyzerOut;
         var sig = VDiskIn.ar(2, buf, BufRateScale.kr(buf));
 
-        self.outputBuses.do {|bus, i|
+        self.srcBuses.do {|bus, i|
             Out.ar(bus, sig.wrapAt(i));
         };
 
@@ -122,8 +122,14 @@
         XOut.ar(bus, drywet, sig);
     }, lagTime.dup(3)).add;
 
+    SynthDef(\router, {
+        var sig = self.srcBuses.collect(In.ar(_,1));
+        sig = sig.sanitize;
+        Out.ar(out, amp * sig);
+    }).add;
+
     SynthDef(\mainout, {arg amp=1, out;
-        var sig = self.outputBuses.collect(In.ar(_,1));
+        var sig = self.srcBuses.collect(In.ar(_,1));
         sig = sig.sanitize;
         Out.ar(out, amp * sig);
     }).add;

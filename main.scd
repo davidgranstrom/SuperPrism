@@ -24,7 +24,7 @@
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
-        self.outputBuses = { Bus.audio(s, 1) }.dup(kNUM_CHANNELS);
+        self.srcBuses = { Bus.audio(s, 1) }.dup(kNUM_CHANNELS);
 
         self.createGroups;
         self.loadSoundFile;
@@ -84,7 +84,7 @@
 
     q.dealloc = {|self|
         self.analyzerBuses.do(_.free);
-        self.outputBuses.do(_.free);
+        self.srcBuses.do(_.free);
         self.analyzerInputBus.free;
 
         self.buffer.close;
