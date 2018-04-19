@@ -8,7 +8,7 @@
         group.internal.collect {|bus|
             var pattern = Pbind(
                 \instrument, \mute,
-                \type, Pseq([ \note, \rest ], inf),
+                \type, Pwrand([ \note, \rest ], [ 0.3, 0.7 ], inf),
                 \group, self.muterGroup,
                 \bus, bus,
                 \dur, Pfunc {
@@ -19,7 +19,7 @@
                     }
                 },
                 \legato, 1.5,
-                \timingOffset, (muteBusDelayTime * (1/3)),
+                // \timingOffset, (muteBusDelayTime * (1/3)),
             );
 
             muteBusDelayTime = muteBusDelayTime + 1;
