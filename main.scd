@@ -6,20 +6,36 @@
 // Fix gate FX
 
 (
-    var kNUM_CHANNELS = 2;
+    /*
+    * Number of output groups.
+    * Useful to apply different diffusers to a subset of speakers or
+    * controlling amplitude of separate speaker groups.
+    */
+    var kNUM_OUTPUT_GROUPS = 1;
+    /*
+    * Hardware output offset.
+    * Signal is routed incrementally starting from the offset value.
+    */
     var kOUTPUT_OFFSET = 0;
+    /*
+    * The input sound file to diffuse.
+    * Should be placed in "audio" in this directory.
+    */
     var kINPUT_FILE = "waning-moon.wav";
+    /*
+    * Set the total number of speakers/interface outputs
+    */
+    var kNUM_OUTPUT_BUS_CHANNELS = 32;
 
     q = q ? ();
 
     // adjust to interface max output channels
-    s.options.numOutputBusChannels = 24;
+    s.options.numOutputBusChannels = kNUM_OUTPUT_BUS_CHANNELS;
 
     // set clock for diffuser patterns
     TempoClock.default.tempo = 1;
 
     q.init = {|self|
-        var numOutputGroups = 2;
 
         self.path = "~/code/supercollider/intonal".standardizePath;
 
@@ -37,10 +53,11 @@
 
         // output bus assignments
         self.outputs = ();
+        self.outputs.groups = { () }.dup(kNUM_OUTPUT_GROUPS);
+
+        self.addOutputGroup(0, (0..31));
         self.outputs.groups = { () }.dup(numOutputGroups);
 
-        self.addOutputGroup(0, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
-        self.addOutputGroup(1, 8 + [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
         // self.addOutputGroup(2, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
         // self.addOutputGroup(3, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
         // self.addOutputGroup(4, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
