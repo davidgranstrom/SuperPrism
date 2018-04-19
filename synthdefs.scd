@@ -135,11 +135,19 @@
     SynthDef(\mainout, {arg amp=0, out;
         var outputArray = self.outputs.groups.collect(_.external);
         var busArray = self.outputs.groups.collect(_.internal);
+        var gain = amp * self.mainOutLevelScale;
+
+        if (self.monoSends.isEmpty.not) {
+            var src = self.srcBus.ar.mean * gain;
+            self.monoSends.do {|bus|
+                Out.ar(bus, src.sanitize);
+            }
+        };
 
         [ outputArray, busArray ].flopWith {|outputs, buses|
             [ outputs, buses ].flopWith {|output, bus|
                 var sig = bus.ar;
-                sig = sig * amp * self.mainOutLevelScale;
+                sig = sig * gain;
                 Out.ar(output, sig.sanitize);
             };
         };

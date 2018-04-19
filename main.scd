@@ -12,8 +12,19 @@
     * Each output group has a separate volume control and can be assigned different diffusers.
     */
     var kOUTPUT_GROUPS = [
-        (0..31),
-    ];
+        // (1..4),
+        // (5..8),
+        // (9..16),
+        (17..20),
+        [ 21, 22 ],
+    ] - 1; // first hardware out is zero
+
+    /*
+    * Mono summed input source send.
+    * Useful for sending to sub bass hardware outputs or similar.
+    * Supply an empty array to disable.
+    */
+    var kMONO_SUM_SENDS = [ 23, 24 ] - 1;
 
     /*
     * Main out level adjustment in decibels
@@ -52,6 +63,7 @@
 
         // util
         self.mainOutLevelScale = kMAINOUT_LEVEL_SCALE.dbamp;
+        self.monoSends = kMONO_SUM_SENDS;
 
         // buses
         SoundFile.use(self.inputFilePath, {|sf|
