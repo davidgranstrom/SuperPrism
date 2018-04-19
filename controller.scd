@@ -1,7 +1,8 @@
 {|self|
     var drywet = \amp.asSpec;
-    var masterAmp = \amp.asSpec;
+    var amplitude = \amp.asSpec;
     var muteDuration = ControlSpec(1/4, 1/20, \exp);
+    var numGroups = self.outputs.groups.size;
     // var threshSpec = ControlSpec(0.07, 0.3, \exp);
     // var gateHpfFreqSpec = ControlSpec(250, 1000, \exp);
 
@@ -9,6 +10,11 @@
     var chopper = ();
     var grains = ();
 
+    if (self.controller.isNil) {
+        self.controller = NanoKontrol2();
+    };
+
+    // control specs
     ampmod.freq = ControlSpec(1/2, 14, \exp);
 
     chopper.density = ControlSpec(8, 14, \exp);
@@ -18,15 +24,22 @@
 
     grains.fbGain = ControlSpec(0, 2, \sin);
 
-    if (self.nano.isNil) {
-        self.nano = NanoKontrol2();
+    // controller assignments
+    self.controller.faders[0..(numGroups - 1)].do {|fader, i|
+        var controlName = "group_%_gain".format(i).asSymbol;
+
+        fader.onChange = {arg val;
+            var amp = amplitude.map(val / 127);
+            self.router.set(controlName, amp);
+        };
     };
 
-    self.nano.fader1.onChange = {arg val;
+    /*
+    self.controller.fader1.onChange = {arg val;
         self.muteDuration = muteDuration.map(val / 127);
     };
 
-    self.nano.sBtn1.onPress = {
+    self.controller.sBtn1.onPress = {
         if (self.mutePatterns.isPlaying) {
             self.mutePatterns.stop;
         } {
@@ -34,17 +47,17 @@
         };
     };
 
-    self.nano.fader2.onChange = {arg val;
+    self.controller.fader2.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.ampmodGroup.set(\drywet, amount);
     };
 
-    self.nano.knob2.onChange = {arg val;
+    self.controller.knob2.onChange = {arg val;
         var freq = ampmod.freq.map(val / 127);
         self.ampmodGroup.set(\freq, freq);
     };
 
-    // self.nano.knob3.onChange = {arg val;
+    // self.controller.knob3.onChange = {arg val;
     //     var threshold = threshSpec.map(val / 127);
     //     var freq = gateHpfFreqSpec.map(val / 127);
 
@@ -53,7 +66,7 @@
     //     self.gateGroup.set(\hpfreq, freq);
     // };
 
-    self.nano.knob3.onChange = {arg val;
+    self.controller.knob3.onChange = {arg val;
         var density, freq, release, gain;
 
         val = val / 127;
@@ -69,7 +82,7 @@
         self.gateGroup.set(\gain, gain);
     };
 
-    self.nano.knob4.onChange = {arg val;
+    self.controller.knob4.onChange = {arg val;
         var fbGain;
 
         val = val / 127;
@@ -78,18 +91,19 @@
         self.grainGroup.set(\fbGain, fbGain);
     };
 
-    self.nano.fader4.onChange = {arg val;
+    self.controller.fader4.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.grainGroup.set(\drywet, amount);
     };
 
-    self.nano.fader5.onChange = {arg val;
+    self.controller.fader5.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.reverbGroup.set(\drywet, amount);
     };
+    */
 
-    self.nano.fader8.onChange = {arg val;
-        var amp = masterAmp.map(val / 127);
+    self.controller.fader8.onChange = {arg val;
+        var amp = amplitude.map(val / 127);
         self.masterGroup.set(\amp, amp);
     };
 };
