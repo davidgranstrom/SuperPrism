@@ -1,13 +1,9 @@
 {|self|
     var lagTime = 0.05;
 
-    SynthDef(\diskin, {arg buf, amp=1, analyzerOut;
-        var sig = VDiskIn.ar(2, buf, BufRateScale.kr(buf));
-
-        self.srcBuses.do {|bus, i|
-            Out.ar(bus, sig.wrapAt(i));
-        };
-
+    SynthDef(\diskin, {arg buf, amp=1;
+        var sig = VDiskIn.ar(self.inputNumChannels, buf, BufRateScale.kr(buf));
+        Out.ar(self.srcBus, sig);
         Out.ar(self.analyzerInputBus, sig);
     }).add;
 
@@ -28,8 +24,6 @@
             Amplitude.kr(bpf, 0.01, 0.1),
             Amplitude.kr(hpf, 0.01, 0.1),
         ];
-
-        // sig.poll;
 
         [ sig, buses ].flopWith {|analysis, bus|
             Out.kr(bus, analysis);
@@ -123,14 +117,29 @@
     }, lagTime.dup(3)).add;
 
     SynthDef(\router, {
-        var sig = self.srcBuses.collect(In.ar(_,1));
-        sig = sig.sanitize;
-        Out.ar(out, amp * sig);
+        var src = self.srcBus.ar;
+        var numGroups = self.outputs.groups.size;
+        var gains = Array.fill(numGroups, {|i|
+            var name = "group" ++ (i + 1) ++ "_gain";
+            NamedControl.kr(name, 1, lagTime);
+        });
+
+        self.outputs.groups.do {|group, i|
+            group.internal.do {|bus, j|
+                Out.ar(bus, gains[i] * src.wrapAt(j));
+            };
+        };
     }).add;
 
     SynthDef(\mainout, {arg amp=1, out;
-        var sig = self.srcBuses.collect(In.ar(_,1));
-        sig = sig.sanitize;
-        Out.ar(out, amp * sig);
+        var outputArray = self.outputs.groups.collect(_.external);
+        var busArray = self.outputs.groups.collect(_.internal);
+
+        [ outputArray, busArray ].flopWith {|outputs, buses|
+            [ outputs, buses ].flopWith {|output, bus|
+                var sig = bus.ar;
+                Out.ar(output, sig.sanitize);
+            };
+        };
     }).add;
 };

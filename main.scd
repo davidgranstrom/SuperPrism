@@ -7,7 +7,7 @@
 
 (
     var kNUM_CHANNELS = 2;
-    var kOUTPUT_OFFSET = 6;
+    var kOUTPUT_OFFSET = 0;
     var kINPUT_FILE = "waning-moon.wav";
 
     q = q ? ();
@@ -15,16 +15,34 @@
     s.options.numOutputBusChannels = 24; // adjust to interface max output channels
 
     q.init = {|self|
+        var numOutputGroups = 2;
+
         self.path = "~/code/supercollider/intonal".standardizePath;
 
-        self.analyzerInputBus = Bus.audio(s, 2);
+        SoundFile.use(self.path +/+ "audio" +/+ kINPUT_FILE, {|sf|
+            self.inputNumChannels = sf.numChannels;
+        });
+
+        self.srcBus = Bus.audio(s, self.inputNumChannels);
+        self.analyzerInputBus = Bus.audio(s, self.inputNumChannels);
 
         self.analyzerBuses = ();
         self.analyzerBuses.lpf = Bus.control(s, 1);
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
-        self.srcBuses = { Bus.audio(s, 1) }.dup(kNUM_CHANNELS);
+        // output bus assignments
+        self.outputs = ();
+        self.outputs.groups = { () }.dup(numOutputGroups);
+
+        self.addOutputGroup(0, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+        self.addOutputGroup(1, 8 + [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+        // self.addOutputGroup(2, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+        // self.addOutputGroup(3, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+        // self.addOutputGroup(4, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+
+        // DEBUG
+        self.srcBuses = { Bus.audio(s, 1) }.dup(2);
 
         self.createGroups;
         self.loadSoundFile;
@@ -41,6 +59,13 @@
         s.sync;
 
         self.start;
+    };
+
+    q.addOutputGroup = {|self, index, outputMap|
+        var size = outputMap.size;
+
+        self.outputs.groups[index].external = outputMap;
+        self.outputs.groups[index].internal = { Bus.audio(s, 1) }.dup(size);
     };
 
     q.createGroups = {|self|
@@ -73,6 +98,7 @@
 
             s.sync;
 
+            self.router = Synth.head(self.masterGroup, \router);
             Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
             Synth.tail(self.srcGroup, \analyzer);
 

@@ -1,5 +1,6 @@
 {|self|
     var mutePatterns, ampmods, grains, gates, reverbs;
+    var groups = self.outputs.groups;
 
     mutePatterns = self.srcBuses.collect {|bus|
         Pbind(
