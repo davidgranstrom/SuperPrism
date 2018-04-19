@@ -121,7 +121,7 @@
         var numGroups = self.outputs.groups.size;
 
         var gains = Array.fill(numGroups, {|i|
-            var name = "group" ++ (i + 1) ++ "_gain";
+            var name = "group_%_gain".format(i).asSymbol;
             NamedControl.kr(name, 1, lagTime);
         });
 
