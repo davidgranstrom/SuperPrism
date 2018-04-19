@@ -7,21 +7,26 @@
 
 (
     /*
-    * Number of output groups.
-    * Useful to apply different diffusers to a subset of speakers or
-    * controlling amplitude of separate speaker groups.
+    * Output group array.
+    * Add arrays corresponding to hardware outputs to create output groups.
+    * Each output group has a separate volume control and can be assigned different diffusers.
     */
-    var kNUM_OUTPUT_GROUPS = 1;
+    var kOUTPUT_GROUPS = [
+        (0..31),
+    ];
+
     /*
     * Hardware output offset.
     * Signal is routed incrementally starting from the offset value.
     */
     var kOUTPUT_OFFSET = 0;
+
     /*
     * The input sound file to diffuse.
     * Should be placed in "audio" in this directory.
     */
     var kINPUT_FILE = "waning-moon.wav";
+
     /*
     * Set the total number of speakers/interface outputs
     */
@@ -51,16 +56,13 @@
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
-        // output bus assignments
         self.outputs = ();
-        self.outputs.groups = { () }.dup(kNUM_OUTPUT_GROUPS);
+        self.outputs.groups = { () }.dup(kOUTPUT_GROUPS.size);
 
-        self.addOutputGroup(0, (0..31));
-        self.outputs.groups = { () }.dup(numOutputGroups);
-
-        // self.addOutputGroup(2, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
-        // self.addOutputGroup(3, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
-        // self.addOutputGroup(4, [ 0, 1, 2, 3, 4, 5, 6, 7 ]);
+        // output bus assignments
+        kOUTPUT_GROUPS.do {|outputMap, index|
+            self.addOutputGroup(index, outputMap);
+        };
 
         // DEBUG
         self.srcBuses = { Bus.audio(s, 1) }.dup(2);
@@ -84,7 +86,6 @@
 
     q.addOutputGroup = {|self, index, outputMap|
         var size = outputMap.size;
-
         self.outputs.groups[index].external = outputMap;
         self.outputs.groups[index].internal = { Bus.audio(s, 1) }.dup(size);
     };
