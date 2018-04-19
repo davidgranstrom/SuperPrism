@@ -1,5 +1,6 @@
 {|self|
     var drywet = \amp.asSpec;
+    var muteDuration = ControlSpec(1/4, 1/20, \exp);
     // var threshSpec = ControlSpec(0.07, 0.3, \exp);
     // var gateHpfFreqSpec = ControlSpec(250, 1000, \exp);
 
@@ -21,8 +22,7 @@
     };
 
     self.nano.fader1.onChange = {arg val;
-        var amount = drywet.map(val / 127);
-        self.muterGroup.set(\drywet, amount);
+        self.muteDuration = muteDuration.map(val / 127);
     };
 
     self.nano.sBtn1.onPress = {

@@ -2,16 +2,31 @@
     var mutePatterns, ampmods, grains, gates, reverbs;
     var groups = self.outputs.groups;
 
-    mutePatterns = self.srcBuses.collect {|bus|
-        Pbind(
-            \instrument, \mute,
-            \group, self.muterGroup,
-            \bus, bus,
-            \xfade, Prand([ 0, 1 ], inf),
-            \dur, Pwhite(0.125, 0.5),
-            \legato, 1.0,
-        );
-    };
+    var muteBusDelayTime = 0;
+
+    mutePatterns = groups.collect {|group|
+        group.internal.collect {|bus|
+            var pattern = Pbind(
+                \instrument, \mute,
+                \type, Pseq([ \note, \rest ], inf),
+                \group, self.muterGroup,
+                \bus, bus,
+                \dur, Pfunc {
+                    if (self.muteDuration.notNil) {
+                        self.muteDuration;
+                    } {
+                        1/8;
+                    }
+                },
+                \legato, 1.5,
+                \timingOffset, (muteBusDelayTime * (1/3)),
+            );
+
+            muteBusDelayTime = muteBusDelayTime + 1;
+            // return
+            pattern;
+        };
+    }.flat;
 
     ampmods = self.srcBuses.collect {|bus|
         Synth.newPaused(\ampmod, [

@@ -12,7 +12,11 @@
 
     q = q ? ();
 
-    s.options.numOutputBusChannels = 24; // adjust to interface max output channels
+    // adjust to interface max output channels
+    s.options.numOutputBusChannels = 24;
+
+    // set clock for diffuser patterns
+    TempoClock.default.tempo = 1;
 
     q.init = {|self|
         var numOutputGroups = 2;
@@ -98,9 +102,9 @@
 
             s.sync;
 
-            self.router = Synth.head(self.masterGroup, \router);
-            Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
+            self.router = Synth.tail(self.srcGroup, \router);
             Synth.tail(self.srcGroup, \analyzer);
+            Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
 
             s.sync;
 
