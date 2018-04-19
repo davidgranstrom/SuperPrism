@@ -16,12 +16,6 @@
     ];
 
     /*
-    * Hardware output offset.
-    * Signal is routed incrementally starting from the offset value.
-    */
-    var kOUTPUT_OFFSET = 0;
-
-    /*
     * The input sound file to diffuse.
     * Should be placed in "audio" in this directory.
     */
@@ -31,6 +25,12 @@
     * Set the total number of speakers/interface outputs
     */
     var kNUM_OUTPUT_BUS_CHANNELS = 32;
+
+    /*
+    * Hardware output offset.
+    * Signal is routed incrementally starting from the offset value.
+    */
+    var kOUTPUT_OFFSET = 0;
 
     q = q ? ();
 
