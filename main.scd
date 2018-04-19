@@ -1,8 +1,7 @@
 // TODO:
 //
-// Main group volume controls
+// Send to sub bass post groups
 // FX output bus assignments
-// Reverb FX
 // Fix gate FX
 
 (
@@ -12,11 +11,9 @@
     * Each output group has a separate volume control and can be assigned different diffusers.
     */
     var kOUTPUT_GROUPS = [
-        // (1..4),
-        // (5..8),
-        // (9..16),
-        (17..20),
-        [ 21, 22 ],
+        (1..4),
+        (5..8),
+        (9..16),
     ] - 1; // first hardware out is zero
 
     /*
