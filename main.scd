@@ -68,8 +68,8 @@
     q.start = {|self|
         s.makeBundle(nil, {
             self.grainSynths.do(_.run);
-            self.ampmodSynths.do {|synth| synth.run };
-            self.reverbSynths.do {|synth| synth.run };
+            self.ampmodSynths.do(_.run);
+            self.reverbSynths.do(_.run);
 
             s.sync;
 

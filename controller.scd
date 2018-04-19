@@ -81,4 +81,9 @@
         var amount = drywet.map(val / 127);
         self.grainGroup.set(\drywet, amount);
     };
+
+    self.nano.fader5.onChange = {arg val;
+        var amount = drywet.map(val / 127);
+        self.reverbGroup.set(\drywet, amount);
+    };
 };
