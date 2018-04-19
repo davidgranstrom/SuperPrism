@@ -1,6 +1,5 @@
 // TODO:
 //
-// Send to sub bass post groups
 // FX output bus assignments
 // Fix gate FX
 
@@ -60,7 +59,6 @@
 
         // util
         self.mainOutLevelScale = kMAINOUT_LEVEL_SCALE.dbamp;
-        self.monoSends = kMONO_SUM_SENDS;
 
         // buses
         SoundFile.use(self.inputFilePath, {|sf|
@@ -78,11 +76,15 @@
         // output groups
         self.outputs = ();
         self.outputs.groups = { () }.dup(kOUTPUT_GROUPS.size);
+        self.outputs.monoSends = ();
 
         // bus assignments
         kOUTPUT_GROUPS.do {|outputMap, index|
             self.addOutputGroup(index, outputMap);
         };
+
+        self.outputs.monoSends.external = kMONO_SUM_SENDS;
+        self.outputs.monoSends.internal = { Bus.audio(s, 1) }.dup(kMONO_SUM_SENDS.size);
 
         // DEBUG
         self.srcBuses = { Bus.audio(s, 1) }.dup(2);
@@ -154,9 +156,12 @@
     q.dealloc = {|self|
         self.analyzerBuses.do(_.free);
         self.analyzerInputBus.free;
+
         self.outputs.groups.do {|group|
             group.internal.do(_.free);
         };
+
+        self.outputs.monoSends.internal.do(_.free);
 
         self.buffer.close;
         self.buffer.free;

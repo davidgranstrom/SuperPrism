@@ -118,6 +118,7 @@
 
     SynthDef(\router, {
         var src = self.srcBus.ar;
+        var sends = self.outputs.monoSends;
         var numGroups = self.outputs.groups.size;
 
         var gains = Array.fill(numGroups, {|i|
@@ -130,22 +131,35 @@
                 Out.ar(bus, gains[i] * src.wrapAt(j));
             };
         };
+
+        // mono sends
+        if (sends.internal.isEmpty.not) {
+            var sum = src.mean * gains.mean;
+            sends.internal.do {|bus|
+                Out.ar(bus, sum);
+            };
+        };
     }).add;
 
     SynthDef(\mainout, {arg amp=0, out;
         var outputArray = self.outputs.groups.collect(_.external);
         var busArray = self.outputs.groups.collect(_.internal);
+        var sends = self.outputs.monoSends;
+
         var gain = amp * self.mainOutLevelScale;
 
-        if (self.monoSends.isEmpty.not) {
-            var src = self.srcBus.ar.mean * gain;
-            self.monoSends.do {|bus|
-                Out.ar(bus, src.sanitize);
-            }
-        };
-
+        // group outputs
         [ outputArray, busArray ].flopWith {|outputs, buses|
             [ outputs, buses ].flopWith {|output, bus|
+                var sig = bus.ar;
+                sig = sig * gain;
+                Out.ar(output, sig.sanitize);
+            };
+        };
+
+        // mono sends
+        if (sends.external.isEmpty.not) {
+            [ sends.external, sends.internal ].flopWith {|output, bus|
                 var sig = bus.ar;
                 sig = sig * gain;
                 Out.ar(output, sig.sanitize);
