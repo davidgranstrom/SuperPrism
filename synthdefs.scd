@@ -131,15 +131,15 @@
         };
     }).add;
 
-    SynthDef(\mainout, {arg amp=1, out;
+    SynthDef(\mainout, {arg amp=0, out;
         var outputArray = self.outputs.groups.collect(_.external);
         var busArray = self.outputs.groups.collect(_.internal);
 
         [ outputArray, busArray ].flopWith {|outputs, buses|
             [ outputs, buses ].flopWith {|output, bus|
                 var sig = bus.ar;
-                Out.ar(output, sig.sanitize);
+                Out.ar(output, amp * sig.sanitize);
             };
         };
-    }).add;
+    }, [ lagTime ]).add;
 };

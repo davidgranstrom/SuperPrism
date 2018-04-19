@@ -1,5 +1,6 @@
 {|self|
     var drywet = \amp.asSpec;
+    var masterAmp = \amp.asSpec;
     var muteDuration = ControlSpec(1/4, 1/20, \exp);
     // var threshSpec = ControlSpec(0.07, 0.3, \exp);
     // var gateHpfFreqSpec = ControlSpec(250, 1000, \exp);
@@ -85,5 +86,10 @@
     self.nano.fader5.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.reverbGroup.set(\drywet, amount);
+    };
+
+    self.nano.fader8.onChange = {arg val;
+        var amp = masterAmp.map(val / 127);
+        self.masterGroup.set(\amp, amp);
     };
 };
