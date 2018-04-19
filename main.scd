@@ -110,11 +110,15 @@
 
     q.dealloc = {|self|
         self.analyzerBuses.do(_.free);
-        self.srcBuses.do(_.free);
         self.analyzerInputBus.free;
+        self.outputs.groups.do {|group|
+            group.internal.do(_.free);
+        };
 
         self.buffer.close;
         self.buffer.free;
+
+        "Dealloc called".postln;
     };
 
     s.waitForBoot {
