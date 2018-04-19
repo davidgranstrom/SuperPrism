@@ -119,6 +119,7 @@
     SynthDef(\router, {
         var src = self.srcBus.ar;
         var numGroups = self.outputs.groups.size;
+
         var gains = Array.fill(numGroups, {|i|
             var name = "group" ++ (i + 1) ++ "_gain";
             NamedControl.kr(name, 1, lagTime);
@@ -138,7 +139,8 @@
         [ outputArray, busArray ].flopWith {|outputs, buses|
             [ outputs, buses ].flopWith {|output, bus|
                 var sig = bus.ar;
-                Out.ar(output, amp * sig.sanitize);
+                sig = sig * amp * self.mainOutLevelScale;
+                Out.ar(output, sig.sanitize);
             };
         };
     }, [ lagTime ]).add;

@@ -16,6 +16,11 @@
     ];
 
     /*
+    * Main out level adjustment in decibels
+    */
+    var kMAINOUT_LEVEL_SCALE = -16;
+
+    /*
     * The input sound file to diffuse.
     * Should be placed in "audio" in this directory.
     */
@@ -41,10 +46,15 @@
     TempoClock.default.tempo = 1;
 
     q.init = {|self|
-
+        // paths
         self.path = "~/code/supercollider/intonal".standardizePath;
+        self.inputFilePath = self.path +/+ "audio" +/+ kINPUT_FILE;
 
-        SoundFile.use(self.path +/+ "audio" +/+ kINPUT_FILE, {|sf|
+        // util
+        self.mainOutLevelScale = kMAINOUT_LEVEL_SCALE.dbamp;
+
+        // buses
+        SoundFile.use(self.inputFilePath, {|sf|
             self.inputNumChannels = sf.numChannels;
         });
 
@@ -56,10 +66,11 @@
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
+        // output groups
         self.outputs = ();
         self.outputs.groups = { () }.dup(kOUTPUT_GROUPS.size);
 
-        // output bus assignments
+        // bus assignments
         kOUTPUT_GROUPS.do {|outputMap, index|
             self.addOutputGroup(index, outputMap);
         };
@@ -69,6 +80,7 @@
 
         self.createGroups;
         self.loadSoundFile;
+
         // load synthdefs
         (self.path +/+ "synthdefs.scd").load.value(self);
 
@@ -106,7 +118,7 @@
     };
 
     q.loadSoundFile = {|self|
-        var path = self.path +/+ "audio" +/+ kINPUT_FILE;
+        var path = self.inputFilePath;
         var bufferSize = 2 ** 19;
 
         self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
