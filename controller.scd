@@ -34,19 +34,28 @@
         };
     };
 
-    /*
-    self.controller.fader1.onChange = {arg val;
+    self.controller.fader7.onChange = {arg val;
         self.muteDuration = muteDuration.map(val / 127);
     };
 
-    self.controller.sBtn1.onPress = {
-        if (self.mutePatterns.isPlaying) {
-            self.mutePatterns.stop;
-        } {
-            self.mutePatterns = self.mutePatterns.play;
-        };
+    self.controller.sBtn7.onPress = {
+        var pattern = self.mutePatterns.pattern;
+        var synths = self.mutePatterns.synths;
+
+        s.makeBundle(nil, {
+            if (pattern.isPlaying) {
+                pattern.stop;
+                synths.do(_.set(\gate, 0));
+            } {
+                synths.do(_.run(true));
+                s.sync;
+                synths.do(_.set(\gate, 1));
+                self.mutePatterns.pattern = pattern.play;
+            };
+        });
     };
 
+    /*
     self.controller.fader2.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.ampmodGroup.set(\drywet, amount);
