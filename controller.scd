@@ -44,11 +44,11 @@
     [ sBtns, mBtns, rBtns, self.diffusers ].flopWith {|sBtn, mBtn, rBtn, diffuser|
         // mute
         sBtn.onPress = {|val, btn|
-            if (btn.ledState == 0) {
-                diffuser.mute.do(_.run);
+            if (diffuser.mute.isActive.not) {
+                diffuser.mute.start;
                 btn.ledState = 1;
             } {
-                diffuser.mute.do(_.run(false));
+                diffuser.mute.cancel;
                 btn.ledState = 0;
             }
         };
