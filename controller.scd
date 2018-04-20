@@ -2,7 +2,10 @@
     var drywet = \amp.asSpec;
     var amplitude = \amp.asSpec;
     var muteDuration = ControlSpec(1/4, 1/20, \exp);
+
     var numGroups = self.outputs.groups.size;
+    var sBtns, mBtns, rBtns;
+    // var muteFunction;
     // var threshSpec = ControlSpec(0.07, 0.3, \exp);
     // var gateHpfFreqSpec = ControlSpec(250, 1000, \exp);
 
@@ -34,32 +37,41 @@
         };
     };
 
-    self.controller.fader7.onChange = {arg val;
-        self.muteDuration = muteDuration.map(val / 127);
+    sBtns = self.controller.sBtns[0..5];
+    mBtns = self.controller.mBtns[0..5];
+    rBtns = self.controller.rBtns[0..5];
+
+    [ sBtns, mBtns, rBtns, self.diffusers ].flopWith {|sBtn, mBtn, rBtn, diffuser|
+        // mute
+        sBtn.onPress = {|val, btn|
+            if (btn.ledState == 0) {
+                diffuser.mute.do(_.run);
+                btn.ledState = 1;
+            } {
+                diffuser.mute.do(_.run(false));
+                btn.ledState = 0;
+            }
+        };
+
+        // ampmod
+        mBtn.onPress = {|val, btn|
+            if (btn.ledState == 0) {
+                diffuser.ampmod.do(_.run);
+                btn.ledState = 1;
+            } {
+                diffuser.ampmod.do(_.run(false));
+                btn.ledState = 0;
+            }
+        };
     };
+
+    // self.controller.fader7.onChange = {arg val;
+    //     self.muteDuration = muteDuration.map(val / 127);
+    // };
 
     self.controller.knob7.onChange = {arg val;
         var amount = drywet.map(val / 127);
         self.controlBuses.mute.drywet.set(amount);
-    };
-
-    self.controller.sBtn7.onPress = {arg val, btn;
-        var pattern = self.mutePatterns.pattern;
-        var synths = self.mutePatterns.synths;
-
-        s.makeBundle(nil, {
-            if (pattern.isPlaying) {
-                pattern.stop;
-                synths.do(_.set(\gate, 0));
-                btn.ledState = 0;
-            } {
-                synths.do(_.run(true));
-                s.sync;
-                synths.do(_.set(\gate, 1));
-                self.mutePatterns.pattern = pattern.play;
-                btn.ledState = 1;
-            };
-        });
     };
 
     /*

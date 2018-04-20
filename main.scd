@@ -1,6 +1,5 @@
 // TODO:
 //
-// FX output bus assignments
 // Fix gate FX
 
 (
@@ -10,9 +9,13 @@
     * Each output group has a separate volume control and can be assigned different diffusers.
     */
     var kOUTPUT_GROUPS = [
-        (1..4),
-        (5..8),
-        (9..16),
+        (1..4),     // 0 quad wide
+        (5..8),     // 1 quad close
+        (9..16),    // 2 octophonic ring
+        (25..28),   // 3 roof
+        (29..32),   // 4 choir
+        [ 21, 22 ], // 5 outside room
+        // (17..20),   // spaced quad
     ] - 1; // first hardware out is zero
 
     /*
@@ -90,9 +93,6 @@
         self.outputs.monoSends.external = kMONO_SUM_SENDS;
         self.outputs.monoSends.internal = { Bus.audio(s, 1) }.dup(kMONO_SUM_SENDS.size);
 
-        // DEBUG
-        self.srcBuses = { Bus.audio(s, 1) }.dup(2);
-
         self.createGroups;
         self.loadSoundFile;
 
@@ -101,10 +101,11 @@
 
         s.sync;
 
+        // create diffusers
+        self.diffusers = (self.path +/+ "diffusers.scd").load.value(self);
+
         // initialize controller
         (self.path +/+ "controller.scd").load.value(self);
-        // create diffusers
-        (self.path +/+ "diffusers.scd").load.value(self);
 
         s.sync;
 
@@ -136,17 +137,12 @@
         var path = self.inputFilePath;
         var bufferSize = 2 ** 19;
 
-        self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
+        // self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
+        self.buffer = Buffer.cueSoundFile(s, path, 48000 * 30, 2, bufferSize.asInteger);
     };
 
     q.start = {|self|
         s.makeBundle(nil, {
-            self.grainSynths.do(_.run);
-            self.ampmodSynths.do(_.run);
-            self.reverbSynths.do(_.run);
-
-            s.sync;
-
             self.router = Synth.tail(self.srcGroup, \router);
             Synth.tail(self.srcGroup, \analyzer);
             Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
@@ -169,6 +165,10 @@
 
         self.buffer.close;
         self.buffer.free;
+
+        if (self.controller.notNil) {
+            self.controller.ledsOff;
+        };
 
         "Dealloc called".postln;
     };
