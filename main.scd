@@ -73,6 +73,10 @@
         self.analyzerBuses.bpf = Bus.control(s, 1);
         self.analyzerBuses.hpf = Bus.control(s, 1);
 
+        self.controlBuses = ();
+        self.controlBuses.mute = ();
+        self.controlBuses.mute.drywet = Bus.control(s, 1).set(1);
+
         // output groups
         self.outputs = ();
         self.outputs.groups = { () }.dup(kOUTPUT_GROUPS.size);

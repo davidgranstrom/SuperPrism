@@ -38,6 +38,11 @@
         self.muteDuration = muteDuration.map(val / 127);
     };
 
+    self.controller.knob7.onChange = {arg val;
+        var amount = drywet.map(val / 127);
+        self.controlBuses.mute.drywet.set(amount);
+    };
+
     self.controller.sBtn7.onPress = {
         var pattern = self.mutePatterns.pattern;
         var synths = self.mutePatterns.synths;

@@ -47,19 +47,19 @@
         XOut.ar(bus, drywet, input);
     }, lagTime.dup(3)).add;
 
-    SynthDef(\mute_hpf, {arg bus, gate=0;
+    SynthDef(\mute_hpf, {arg bus, gate=0, drywet=1;
         var sig = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.pauseSelf, gate);
         var ext = 1.5 * self.analyzerBuses.lpf.kr.lag(0.2);
         sig = HPF.ar(sig, ext.linlin(0, 1, 120, 1000));
-        XOut.ar(bus, env, sig);
+        XOut.ar(bus, env * drywet, sig);
     }).add;
 
-    SynthDef(\mute, {arg bus, gate=1;
+    SynthDef(\mute, {arg bus, gate=1, drywet=1;
         var sig = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
         sig = sig * Silent.ar(1);
-        XOut.ar(bus, env, sig);
+        XOut.ar(bus, env * drywet, sig);
     }).add;
 
     SynthDef(\gate, {arg threshold=0.1, hpfreq=20, drywet=0, bus;

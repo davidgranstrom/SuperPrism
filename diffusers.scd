@@ -4,11 +4,13 @@
 
     mutePatterns = groups.collect {|group|
         group.internal.collect {|bus|
+            var drywetBus = self.controlBuses.mute.drywet;
             var pattern = Pbind(
                 \instrument, \mute,
                 \type, Pwrand([ \note, \rest ], [ 0.3, 0.7 ], inf),
                 \group, self.muterGroup,
                 \addAction, \addToTail,
+                \drywet, drywetBus.asMap,
                 \bus, bus,
                 \dur, Pfunc {
                     if (self.muteDuration.notNil) {
@@ -23,7 +25,7 @@
             // return
             (
                 pattern: pattern,
-                hpf: Synth.newPaused(\mute_hpf, [\bus, bus], self.muterGroup),
+                hpf: Synth.newPaused(\mute_hpf, [\bus, bus, \drywet, drywetBus.asMap], self.muterGroup),
             );
         };
     }.flat;
