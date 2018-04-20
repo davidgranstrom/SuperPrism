@@ -11,7 +11,7 @@
     var grains = ();
 
     if (self.controller.isNil) {
-        self.controller = NanoKontrol2();
+        self.controller = NanoKontrol2(\external);
     };
 
     // control specs
@@ -43,7 +43,7 @@
         self.controlBuses.mute.drywet.set(amount);
     };
 
-    self.controller.sBtn7.onPress = {
+    self.controller.sBtn7.onPress = {arg val, btn;
         var pattern = self.mutePatterns.pattern;
         var synths = self.mutePatterns.synths;
 
@@ -51,11 +51,13 @@
             if (pattern.isPlaying) {
                 pattern.stop;
                 synths.do(_.set(\gate, 0));
+                btn.ledState = 0;
             } {
                 synths.do(_.run(true));
                 s.sync;
                 synths.do(_.set(\gate, 1));
                 self.mutePatterns.pattern = pattern.play;
+                btn.ledState = 1;
             };
         });
     };
