@@ -30,8 +30,9 @@
         };
     }).add;
 
-    SynthDef(\ampmod, {arg freq=3, drywet=0, bus;
+    SynthDef(\ampmod, {arg freq=3, drywet=1, gate=1, bus;
         var input, ext, mod;
+        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
 
         input = In.ar(bus, 1);
 
@@ -42,10 +43,9 @@
         mod = SinOsc.ar(freq);
 
         input = input * mod.range(0, 1);
-        // input = HPF.ar(input, freq.linlin(1/2, 16, 20, 1000).lag(0.1));
 
-        XOut.ar(bus, drywet, input);
-    }, lagTime.dup(3)).add;
+        XOut.ar(bus, env * drywet, input);
+    }, lagTime.dup(2)).add;
 
     SynthDef(\mute, {arg bus, gate=1, drywet=1, rate=8, phase=0;
         var sig = In.ar(bus, 1);
@@ -66,8 +66,9 @@
         XOut.ar(bus, drywet, sig);
     }, lagTime.dup(3)).add;
 
-    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=0, bus;
+    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=1, bus, gate=1;
         var sig = In.ar(bus, 1);
+        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
         var ext = 1.5 * self.analyzerBuses.lpf.kr;
 
         ext = ext.clip(0, 1);
@@ -77,13 +78,12 @@
         sig = gain * sig * Decay2.ar(Dust.ar(density), 0.001, release);
         sig = Limiter.ar(sig);
 
-        XOut.ar(bus, drywet, sig);
+        XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(5)).add;
 
-    SynthDef(\grains, {
-        arg drywet=0, fbGain=0, bus;
-
+    SynthDef(\grains, {|drywet=1, fbGain=0, bus, gate=1|
         var input = In.ar(bus, 1);
+        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
 
         var bufLength = 0.5;
         var localBuf = LocalBuf(bufLength * SampleRate.ir).clear;
@@ -107,17 +107,18 @@
         warp = warp.tanh;
         warp = warp.sanitize;
 
-        XOut.ar(bus, drywet, warp);
+        XOut.ar(bus, env * drywet, warp);
     }, lagTime.dup(2)).add;
 
-    SynthDef(\reverb, {arg lpfreq=5000, drywet=0, bus;
+    SynthDef(\reverb, {arg lpfreq=5000, drywet=1, bus, gate=1;
         var sig = In.ar(bus, 1);
+        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
         sig = HPF.ar(sig, 30);
         // sig = DFM1.ar(sig, lpfreq);
         // TODO: Switch to DFM1
         sig = RLPF.ar(sig, lpfreq);
         sig = FreeVerb.ar(sig, 1, 0.95, 0.5);
-        XOut.ar(bus, drywet, sig);
+        XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(3)).add;
 
     SynthDef(\router, {

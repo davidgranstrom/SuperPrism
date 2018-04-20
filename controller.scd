@@ -50,18 +50,28 @@
             } {
                 diffuser.mute.cancel;
                 btn.ledState = 0;
-            }
+            };
         };
 
         // ampmod
         mBtn.onPress = {|val, btn|
-            if (btn.ledState == 0) {
-                diffuser.ampmod.do(_.run);
+            if (diffuser.ampmod.isActive.not) {
+                diffuser.ampmod.start;
                 btn.ledState = 1;
             } {
-                diffuser.ampmod.do(_.run(false));
+                diffuser.ampmod.cancel;
                 btn.ledState = 0;
-            }
+            };
+        };
+
+        rBtn.onPress = {|val, btn|
+            if (diffuser.grain.isActive.not) {
+                diffuser.grain.start;
+                btn.ledState = 1;
+            } {
+                diffuser.grain.cancel;
+                btn.ledState = 0;
+            };
         };
     };
 
@@ -73,6 +83,20 @@
         var amount = drywet.map(val / 127);
         self.controlBuses.mute.drywet.set(amount);
     };
+
+    self.controller.knob8.onChange = {arg val;
+        var fbGain;
+
+        val = val / 127;
+
+        fbGain = grains.fbGain.map(val);
+        self.grainGroup.set(\fbGain, fbGain);
+    };
+
+    // self.controller.fader4.onChange = {arg val;
+    //     var amount = drywet.map(val / 127);
+    //     self.grainGroup.set(\drywet, amount);
+    // };
 
     /*
     self.controller.fader2.onChange = {arg val;
