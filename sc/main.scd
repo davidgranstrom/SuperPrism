@@ -125,6 +125,7 @@
         s.sync;
 
         self.start;
+        self.playing = false;
     };
 
     q.addOutputGroup = {|self, index, outputMap|
@@ -150,8 +151,8 @@
         var path = self.inputFilePath;
         var bufferSize = 2 ** 19;
 
-        // self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
-        self.buffer = Buffer.cueSoundFile(s, path, 48000 * 30, 2, bufferSize.asInteger);
+        self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
+        // self.buffer = Buffer.cueSoundFile(s, path, 48000 * 30, 2, bufferSize.asInteger);
     };
 
     q.start = {|self|
@@ -159,11 +160,14 @@
             self.router = Synth.tail(self.srcGroup, \router);
             Synth.tail(self.srcGroup, \analyzer);
             Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
-
-            s.sync;
-
-            Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]);
         });
+    };
+
+    q.startPlayback = {|self|
+        if (self.playing.not) {
+            Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]);
+            self.playing = true;
+        };
     };
 
     q.dealloc = {|self|

@@ -104,4 +104,9 @@
         var amp = amplitude.map(val / 127);
         self.masterGroup.set(\amp, amp);
     };
+
+    self.controller.playBtn.onPress = {arg val, btn;
+        self.startPlayback;
+        btn.ledState = 1;
+    };
 };
