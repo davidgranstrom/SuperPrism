@@ -35,7 +35,9 @@
 
         diffusers.mute = newDiffuser.(
             'mute',
-            [\rate, self.controlBuses.mute.rate.asMap],
+            [
+                \rate, self.controlBuses.mute.rate.asMap
+            ],
             buses,
             self.muterGroup,
             groupIdx
@@ -53,7 +55,10 @@
 
         diffusers.grain = newDiffuser.(
             'grain',
-            [\fbGain, self.controlBuses.grain.fbGain.asMap],
+            [
+                \fbGain, self.controlBuses.grain.fbGain.asMap,
+                \hpfreq, self.controlBuses.grain.hpfreq.asMap
+            ],
             buses,
             self.grainGroup,
             groupIdx

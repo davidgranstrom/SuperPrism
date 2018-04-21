@@ -18,6 +18,7 @@
     gate.threshold = ControlSpec(0.1, 1, \sin);
     gate.hpfreq = ControlSpec(80, 1000, \exp);
     grain.fbGain = ControlSpec(0, 2, \sin);
+    grain.hpfreq = ControlSpec(20, 2000, \exp);
 
     if (numGroups < 8) { // NanoKontrol2 has maximum 8 faders
         // assign volume group control
@@ -82,6 +83,12 @@
         var hpfreq = gate.hpfreq.map(val / 127);
 
         self.controlBuses.gate.hpfreq.set(hpfreq);
+    };
+
+    self.controller.knob7.onChange = {arg val;
+        var hpfreq = grain.hpfreq.map(val / 127);
+
+        self.controlBuses.grain.hpfreq.set(hpfreq);
     };
 
     self.controller.knob8.onChange = {arg val;

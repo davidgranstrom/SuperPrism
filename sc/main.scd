@@ -83,6 +83,7 @@
         self.controlBuses.gate.threshold = Bus.control(s, 1).set(0.4);
         self.controlBuses.gate.hpfreq = Bus.control(s, 1).set(180);
         self.controlBuses.grain.fbGain = Bus.control(s, 1).set(0);
+        self.controlBuses.grain.hpfreq = Bus.control(s, 1).set(20);
 
         // create drywet control for each diffuser group
         kOUTPUT_GROUPS.size.do {
