@@ -24,7 +24,7 @@
     /*
     * Main out level adjustment in decibels
     */
-    var kMAINOUT_LEVEL_SCALE = -6;
+    var kMAINOUT_LEVEL_SCALE = -3;
 
     /*
     * The input sound file to diffuse.
