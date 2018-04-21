@@ -51,9 +51,9 @@
         var sig = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
         var ext = 1.5 * self.analyzerBuses.lpf.kr.lag(0.2);
-        var mod = Demand.ar(Impulse.ar(rate), 0, Dwrand([ 0, 1 ], [ 0.3, 0.7 ], inf));
+        var mod = Demand.ar(Impulse.ar(rate), 0, Dwrand([ 0, 1 ], [ 0.4, 0.6 ], inf));
 
-        sig = HPF.ar(sig, ext.linlin(0, 1, 120, 1000));
+        sig = HPF.ar(sig, ext.linlin(0, 1, 220, 1000));
         sig = sig * mod.lag(0.05);
 
         XOut.ar(bus, env * drywet, sig);
@@ -87,7 +87,7 @@
         var input = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
 
-        var bufLength = 0.5;
+        var bufLength = 1.0;
         var localBuf = LocalBuf(bufLength * SampleRate.ir).clear;
 
         var warp = Warp1.ar(
