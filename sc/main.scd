@@ -1,8 +1,3 @@
-// TODO:
-//
-// Use buses for diffuser controls
-// Fix gate FX
-
 (
     /*
     * Output group array.
