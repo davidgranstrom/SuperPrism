@@ -29,7 +29,7 @@
     /*
     * Main out level adjustment in decibels
     */
-    var kMAINOUT_LEVEL_SCALE = -16;
+    var kMAINOUT_LEVEL_SCALE = -6;
 
     /*
     * The input sound file to diffuse.
@@ -58,8 +58,8 @@
 
     q.init = {|self|
         // paths
-        self.path = "~/code/supercollider/intonal".standardizePath;
-        self.inputFilePath = self.path +/+ "audio" +/+ kINPUT_FILE;
+        self.path = "~/code/supercollider/intonal/sc".standardizePath;
+        self.inputFilePath = PathName(self.path).parentPath +/+ "audio" +/+ kINPUT_FILE;
 
         // util
         self.mainOutLevelScale = kMAINOUT_LEVEL_SCALE.dbamp;
