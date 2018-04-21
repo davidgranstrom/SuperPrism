@@ -46,18 +46,17 @@
     rBtns = self.controller.rBtns[0..5];
 
     [ sBtns, mBtns, rBtns, self.diffusers ].flopWith {|sBtn, mBtn, rBtn, diffuser|
-        // mute
+        // grain
         sBtn.onPress = {|val, btn|
-            if (diffuser.mute.isActive.not) {
-                diffuser.mute.start;
+            if (diffuser.grain.isActive.not) {
+                diffuser.grain.start;
                 btn.ledState = 1;
             } {
-                diffuser.mute.cancel;
+                diffuser.grain.cancel;
                 btn.ledState = 0;
             };
         };
-
-        // ampmod
+        // gate
         mBtn.onPress = {|val, btn|
             if (diffuser.gate.isActive.not) {
                 diffuser.gate.start;
@@ -67,13 +66,13 @@
                 btn.ledState = 0;
             };
         };
-
+        // mute
         rBtn.onPress = {|val, btn|
-            if (diffuser.grain.isActive.not) {
-                diffuser.grain.start;
+            if (diffuser.mute.isActive.not) {
+                diffuser.mute.start;
                 btn.ledState = 1;
             } {
-                diffuser.grain.cancel;
+                diffuser.mute.cancel;
                 btn.ledState = 0;
             };
         };
