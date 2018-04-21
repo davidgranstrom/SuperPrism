@@ -1,5 +1,5 @@
 {|self|
-    var lagTime = 0.05;
+    var lagTime = 0.1;
 
     SynthDef(\diskin, {arg buf, amp=1;
         var sig = VDiskIn.ar(self.inputNumChannels, buf, BufRateScale.kr(buf));
