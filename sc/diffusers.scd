@@ -40,10 +40,10 @@
             self.muterGroup,
             groupIdx
         );
+
         diffusers.gate = newDiffuser.(
-            'gate',
+            'chopper',
             [
-                \threshold, self.controlBuses.gate.threshold.asMap,
                 \hpfreq, self.controlBuses.gate.hpfreq.asMap
             ],
             buses,
