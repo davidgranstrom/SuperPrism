@@ -27,14 +27,26 @@
 
     grains.fbGain = ControlSpec(0, 2, \sin);
 
-    // controller assignments
-    self.controller.faders[0..(numGroups - 1)].do {|fader, i|
-        var controlName = "group_%_gain".format(i).asSymbol;
+    if (numGroups < 8) { // NanoKontrol2 has maximum 8 faders
+        // assign volume group control
+        self.controller.faders[0..(numGroups - 1)].do {|fader, i|
+            var controlName = "group_%_gain".format(i).asSymbol;
 
-        fader.onChange = {arg val;
-            var amp = amplitude.map(val / 127);
-            self.router.set(controlName, amp);
+            fader.onChange = {arg val;
+                var amp = amplitude.map(val / 127);
+                self.router.set(controlName, amp);
+            };
         };
+
+        // assign drywet group control
+        self.controller.knobs[0..(numGroups - 1)].do {|knob, i|
+            knob.onChange = {arg val;
+                var amount = drywet.map(val / 127);
+                self.controlBuses.drywet[i].set(amount);
+            };
+        };
+    } {
+        "Can't assign volume. Too many groups.".throw;
     };
 
     sBtns = self.controller.sBtns[0..5];
@@ -55,11 +67,11 @@
 
         // ampmod
         mBtn.onPress = {|val, btn|
-            if (diffuser.ampmod.isActive.not) {
-                diffuser.ampmod.start;
+            if (diffuser.gate.isActive.not) {
+                diffuser.gate.start;
                 btn.ledState = 1;
             } {
-                diffuser.ampmod.cancel;
+                diffuser.gate.cancel;
                 btn.ledState = 0;
             };
         };

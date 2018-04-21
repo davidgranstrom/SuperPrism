@@ -2,14 +2,15 @@
     var diffuserGroups = List[];
     var groups = self.outputs.groups;
 
-    var newDiffuser = {|buses, defName, group|
+    var newDiffuser = {|defName, args, buses, group, groupIndex|
         var envir = ();
         var synths = nil;
 
         envir.start = {
             synths ?? {
                 synths = buses.collect {|bus|
-                    Synth.head(group, defName, [\bus, bus]);
+                    var drywet = self.controlBuses.drywet[groupIndex];
+                    Synth.head(group, defName, [\bus, bus, \drywet, drywet.asMap] ++ args);
                 };
             };
         };
@@ -28,14 +29,35 @@
         envir;
     };
 
-    groups.do {|group|
+    groups.do {|group, groupIdx|
         var diffusers = ();
         var buses = group.internal;
 
-        diffusers.mute = newDiffuser.(buses, 'mute', self.muterGroup);
-        diffusers.ampmod = newDiffuser.(buses, 'ampmod', self.ampmodGroup);
-        diffusers.grain = newDiffuser.(buses, 'grains', self.grainGroup);
-        diffusers.reverb = newDiffuser.(buses, 'reverb', self.reverbGroup);
+        diffusers.mute = newDiffuser.(
+            'mute',
+            [\rate, self.controlBuses.mute.rate.asMap],
+            buses,
+            self.muterGroup,
+            groupIdx
+        );
+        diffusers.gate = newDiffuser.(
+            'gate',
+            [
+                \threshold, self.controlBuses.gate.threshold.asMap,
+                \hpfreq, self.controlBuses.gate.hpfreq.asMap
+            ],
+            buses,
+            self.gateGroup,
+            groupIdx
+        );
+
+        diffusers.grain = newDiffuser.(
+            'grain',
+            [\fbGain, self.controlBuses.grain.fbGain.asMap],
+            buses,
+            self.grainGroup,
+            groupIdx
+        );
 
         diffuserGroups.add(diffusers);
     };

@@ -1,5 +1,6 @@
 // TODO:
 //
+// Use buses for diffuser controls
 // Fix gate FX
 
 (
@@ -78,7 +79,21 @@
 
         self.controlBuses = ();
         self.controlBuses.mute = ();
-        self.controlBuses.mute.drywet = Bus.control(s, 1).set(1);
+        self.controlBuses.gate = ();
+        self.controlBuses.grain = ();
+        self.controlBuses.drywet = List[];
+
+        // custom initialization
+        self.controlBuses.mute.rate = Bus.control(s, 1).set(8);
+        self.controlBuses.gate.threshold = Bus.control(s, 1).set(0.4);
+        self.controlBuses.gate.hpfreq = Bus.control(s, 1).set(180);
+        self.controlBuses.grain.fbGain = Bus.control(s, 1).set(0);
+
+        // create drywet control for each diffuser group
+        kOUTPUT_GROUPS.size.do {
+            var bus = Bus.control(s, 1).set(1);
+            self.controlBuses.drywet.add(bus);
+        };
 
         // output groups
         self.outputs = ();

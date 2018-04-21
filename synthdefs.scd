@@ -47,7 +47,7 @@
         XOut.ar(bus, env * drywet, input);
     }, lagTime.dup(2)).add;
 
-    SynthDef(\mute, {arg bus, gate=1, drywet=1, rate=8, phase=0;
+    SynthDef(\mute, {arg drywet=1, rate=8, bus, gate=1;
         var sig = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
         var ext = 1.5 * self.analyzerBuses.lpf.kr.lag(0.2);
@@ -57,13 +57,15 @@
         sig = sig * mod.lag(0.05);
 
         XOut.ar(bus, env * drywet, sig);
-    }).add;
+    }, lagTime.dup(2)).add;
 
-    SynthDef(\gate, {arg threshold=0.1, hpfreq=20, drywet=0, bus;
+    SynthDef(\gate, {arg threshold=0.4, hpfreq=20, drywet=1, bus, gate=1;
         var sig = In.ar(bus, 1);
+        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
+        sig = Compander.ar(sig, sig, threshold, 20, 1, 0.01, 0.5);
         sig = HPF.ar(sig, hpfreq);
-        sig = Compander.ar(sig, sig, threshold, 20, 1, 0.001, 0.1);
-        XOut.ar(bus, drywet, sig);
+        sig = FreeVerb.ar(sig, 1, 0.95, 0.5);
+        XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(3)).add;
 
     SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=1, bus, gate=1;
@@ -81,7 +83,7 @@
         XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(5)).add;
 
-    SynthDef(\grains, {|drywet=1, fbGain=0, bus, gate=1|
+    SynthDef(\grain, {|drywet=1, fbGain=0, bus, gate=1|
         var input = In.ar(bus, 1);
         var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
 
