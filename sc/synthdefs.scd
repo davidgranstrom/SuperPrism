@@ -68,9 +68,9 @@
         XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(3)).add;
 
-    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=1, bus, gate=1;
+    SynthDef(\chopper, {arg density=8, hpfreq=200, release=0.1, gain=1, drywet=1, bus, gate=1, atk=1, rel=1;
         var sig = In.ar(bus, 1);
-        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
+        var env = Env.asr(atk, 1, rel, \sine).ar(Done.freeSelf, gate);
         var ext = 1.5 * self.analyzerBuses.lpf.kr;
 
         ext = ext.clip(0, 1);
@@ -83,9 +83,9 @@
         XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(5)).add;
 
-    SynthDef(\grain, {|drywet=1, fbGain=0, bus, gate=1|
+    SynthDef(\grain, {arg drywet=1, fbGain=0, bus, gate=1, atk=1, rel=1;
         var input = In.ar(bus, 1);
-        var env = Env.asr(0.01, 1, 0.01, \sine).ar(Done.freeSelf, gate);
+        var env = Env.asr(atk, 1, rel, \sine).ar(Done.freeSelf, gate);
 
         var bufLength = 1.0;
         var localBuf = LocalBuf(bufLength * SampleRate.ir).clear;
