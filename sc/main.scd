@@ -163,7 +163,18 @@
 
     q.startPlayback = {|self|
         if (self.playing.not) {
-            Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]);
+            Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]).onFree {
+                var path = self.buffer.path;
+
+                self.buffer.close;
+                self.buffer.cueSoundFile(path);
+
+                self.playing = false;
+                if (self.controller) {
+                    self.controller.playBtn.ledState = 0;
+                };
+            };
+
             self.playing = true;
         };
     };

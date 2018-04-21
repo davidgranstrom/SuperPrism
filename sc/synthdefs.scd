@@ -3,6 +3,9 @@
 
     SynthDef(\diskin, {arg buf, amp=1;
         var sig = VDiskIn.ar(self.inputNumChannels, buf, BufRateScale.kr(buf));
+
+        FreeSelfWhenDone.kr(sig);
+
         Out.ar(self.srcBus, sig);
         Out.ar(self.analyzerInputBus, sig);
     }).add;
