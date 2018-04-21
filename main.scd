@@ -139,10 +139,8 @@
 
         // diffusers
         self.grainGroup = Group.tail(self.diffusionGroup);
-        self.ampmodGroup = Group.tail(self.diffusionGroup);
         self.gateGroup = Group.tail(self.diffusionGroup);
         self.muterGroup = Group.tail(self.diffusionGroup);
-        self.reverbGroup = Group.tail(self.diffusionGroup);
 
         // master
         self.masterGroup = Group.after(self.diffusionGroup);
