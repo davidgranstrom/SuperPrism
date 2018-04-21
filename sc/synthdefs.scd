@@ -130,7 +130,7 @@
 
         var gains = Array.fill(numGroups, {|i|
             var name = "group_%_gain".format(i).asSymbol;
-            NamedControl.kr(name, 1, lagTime);
+            NamedControl.kr(name, 0, lagTime);
         });
 
         self.outputs.groups.do {|group, i|
