@@ -164,15 +164,19 @@
     q.startPlayback = {|self|
         if (self.playing.not) {
             Synth.head(self.srcGroup, \diskin, [\buf, self.buffer]).onFree {
-                var path = self.buffer.path;
+                s.makeBundle(nil, {
+                    var path = self.buffer.path;
 
-                self.buffer.close;
-                self.buffer.cueSoundFile(path);
+                    self.buffer.close;
+                    s.sync;
+                    self.buffer.cueSoundFile(path);
 
-                self.playing = false;
-                if (self.controller) {
-                    self.controller.playBtn.ledState = 0;
-                };
+                    self.playing = false;
+
+                    if (self.controller.notNil) {
+                        self.controller.playBtn.ledState = 0;
+                    };
+                });
             };
 
             self.playing = true;
