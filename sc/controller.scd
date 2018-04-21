@@ -99,14 +99,15 @@
         self.controlBuses.grain.fbGain.set(gain);
     };
 
-    // master volume
+    // master send volume
     self.controller.fader8.onChange = {arg val;
         var amp = amplitude.map(val / 127);
-        self.masterGroup.set(\amp, amp);
+        self.masterGroup.set(\sendAmp, amp);
     };
 
     self.controller.playBtn.onPress = {arg val, btn;
         self.startPlayback;
         btn.ledState = 1;
+        "playing..".postln;
     };
 };

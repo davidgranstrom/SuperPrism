@@ -148,7 +148,7 @@
         };
     }).add;
 
-    SynthDef(\mainout, {arg amp=0, out;
+    SynthDef(\mainout, {arg amp=1, sendAmp=0, out;
         var outputArray = self.outputs.groups.collect(_.external);
         var busArray = self.outputs.groups.collect(_.internal);
         var sends = self.outputs.monoSends;
@@ -168,7 +168,8 @@
         if (sends.external.isEmpty.not) {
             [ sends.external, sends.internal ].flopWith {|output, bus|
                 var sig = bus.ar;
-                sig = sig * gain;
+                sig = sig * gain * sendAmp;
+                sig = LPF.ar(sig, 80);
                 Out.ar(output, sig.sanitize);
             };
         };

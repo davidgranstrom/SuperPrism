@@ -160,6 +160,8 @@
             self.router = Synth.tail(self.srcGroup, \router);
             Synth.tail(self.srcGroup, \analyzer);
             Synth.tail(self.masterGroup, \mainout, [\out, kOUTPUT_OFFSET]);
+
+            "% -- ready".format(kINPUT_FILE).postln;
         });
     };
 
@@ -187,7 +189,7 @@
             self.controller.ledsOff;
         };
 
-        "Dealloc called".postln;
+        "hard stop - dealloc".postln;
     };
 
     s.waitForBoot {
