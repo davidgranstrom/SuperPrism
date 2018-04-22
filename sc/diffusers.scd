@@ -57,7 +57,8 @@
             'grain',
             [
                 \fbGain, self.controlBuses.grain.fbGain.asMap,
-                \hpfreq, self.controlBuses.grain.hpfreq.asMap
+                \hpfreq, self.controlBuses.grain.hpfreq.asMap,
+                \revMix, self.controlBuses.grain.revMix.asMap
             ],
             buses,
             self.grainGroup,

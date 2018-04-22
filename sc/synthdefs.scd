@@ -86,7 +86,7 @@
         XOut.ar(bus, env * drywet, sig);
     }, lagTime.dup(5)).add;
 
-    SynthDef(\grain, {arg drywet=1, fbGain=0, hpfreq=20, bus, gate=1, atk=1, rel=1;
+    SynthDef(\grain, {arg drywet=1, fbGain=0, hpfreq=80, revMix=0, bus, gate=1, atk=1, rel=1;
         var input = In.ar(bus, 1);
         var env = Env.asr(atk, 1, rel, \sine).ar(Done.freeSelf, gate);
 
@@ -110,11 +110,12 @@
 
         warp = HPF.ar(warp * 0.5, 350);
         warp = warp.tanh;
+        warp = FreeVerb.ar(warp, revMix, 0.95, 0.5);
         warp = HPF.ar(warp, hpfreq);
         warp = warp.sanitize;
 
         XOut.ar(bus, env * drywet, warp);
-    }, lagTime.dup(3)).add;
+    }, lagTime.dup(4)).add;
 
     SynthDef(\reverb, {arg lpfreq=5000, drywet=1, bus, gate=1;
         var sig = In.ar(bus, 1);

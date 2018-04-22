@@ -83,7 +83,8 @@
         self.controlBuses.gate.threshold = Bus.control(s, 1).set(0.4);
         self.controlBuses.gate.hpfreq = Bus.control(s, 1).set(180);
         self.controlBuses.grain.fbGain = Bus.control(s, 1).set(0);
-        self.controlBuses.grain.hpfreq = Bus.control(s, 1).set(20);
+        self.controlBuses.grain.hpfreq = Bus.control(s, 1).set(80);
+        self.controlBuses.grain.revMix = Bus.control(s, 1).set(0);
 
         // create drywet control for each diffuser group
         kOUTPUT_GROUPS.size.do {
@@ -176,6 +177,8 @@
                     if (self.controller.notNil) {
                         self.controller.playBtn.ledState = 0;
                     };
+
+                    "stopped".postln;
                 });
             };
 
