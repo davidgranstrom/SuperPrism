@@ -149,7 +149,6 @@
         var bufferSize = 2 ** 19;
 
         self.buffer = Buffer.cueSoundFile(s, path, 0, 2, bufferSize.asInteger);
-        // self.buffer = Buffer.cueSoundFile(s, path, 48000 * 30, 2, bufferSize.asInteger);
     };
 
     q.start = {|self|
