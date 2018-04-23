@@ -28,9 +28,7 @@ Routing scheme
 
 SuperPrism was designed for high-density speaker arrays. It combines a range of speakers into isolated "diffuser groups" which can be routed through user defined effects. The diffuser groups can contain any number of effects which are assigned locally to each group. This makes custom effect chains possible with dry/wet controls both for individual effects and also for the entire diffuser group.
 
-<div style="max-width: 600px; margin: 0 auto;">
-  ![](assets/images/routing.svg)
-</div>
+![](assets/images/routing.svg)
 
 How to define custom diffusers
 ------------------------------
