@@ -141,5 +141,5 @@
                 Out.ar(output, sig.sanitize);
             };
         };
-    }, [ lagTime ]).add;
+    }, lagTime.dup(2)).add;
 };
