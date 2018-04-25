@@ -53,7 +53,7 @@
 
     q.init = {|self|
         // paths
-        self.path = "~/code/supercollider/intonal/sc".standardizePath;
+        self.path = "~/code/supercollider/SuperPrism/sc".standardizePath;
         self.inputFilePath = PathName(self.path).parentPath +/+ "audio" +/+ kINPUT_FILE;
 
         // util
