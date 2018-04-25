@@ -1,11 +1,11 @@
 SuperPrism
 ==========
 
-Audio diffusion engine for SuperCollider.
+Loudspeaker diffusion engine for SuperCollider.
 
 SuperPrism was developed with high-density asymmetric speaker arrays in mind, but could be used for any type of setup with discrete speaker/channel assignments.
 
-This project was created during a residency at IAC Malmö which was funded by EMS.
+This project was developed during a residency at [IAC](http://www.iac.lu.se/) in collaboration with [EMS](http://elektronmusikstudion.se/).
 
 Features
 --------
@@ -19,7 +19,7 @@ Features
 * Supports custom "diffuser" effects
     - A diffuser is a standard SynthDef which follows a certain I/O scheme (explained below)
 
-* 3-band (low, mid, high) amplitude analysis for sidechain of effect parameters
+* 3-band amplitude analysis to use for sidechaining effect parameters etc.
 
 * Includes a template controller class written for [NanoKONTROL2](https://github.com/davidgranstrom/NanoKontrol2)
 
@@ -33,7 +33,9 @@ SuperPrism was designed for high-density speaker arrays. It combines a range of 
 How to define custom diffusers
 ------------------------------
 
-Diffusers are synths intended to do processing on a individual speakers. Take a look at the function `newDiffuser` in `diffusers.scd`. The name should correspond to a SynthDef, and you would also need to specify a target group. Groups are defined in `main.scd`. If needed you should also create control buses to be able to set the effect parameter and store them between invocations. (The process of adding new diffusers could be automated in the future if needed). 
+Diffusers are synths intended to do processing on a individual speakers. Take a look at `diffusers.scd` to see how it works. The name should correspond to a SynthDef and you should also specify a target group. Groups are defined in `main.scd`.
+
+Keeping the diffusers in separate groups is useful to define the the order of execution of the effects. As it it configured now it works similar to effect chain ins in DAW:s top -> down. If needed you could also create control buses to be able to set the effect parameter and store them between invocations. (The process of adding new diffusers could be automated in the future if needed). 
 
 ### I/O Scheme
 
