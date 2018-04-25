@@ -41,3 +41,23 @@ Keeping the diffusers in separate groups is useful to define the the order of ex
 
 A diffuser SynthDef should have exactly 1 input and 1 output. Use `XOut.ar` to route the output and define one argument named `drywet` to control the dryness/wetness of the effect and one argument called `bus` which will provide the input/output signal. drywet = 0 would simply bypass the effect (without freeing the synth). Take a look at the existing SynthDefs in `synthdefs.scd` for examples.
 
+---
+
+### Copyright
+
+    SuperPrism
+    Copyright (C) 2018 David Granström
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
