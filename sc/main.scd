@@ -195,6 +195,10 @@
 
         self.outputs.monoSends.internal.do(_.free);
 
+        self.controlBuses.do {|group|
+            group.do {|bus| bus.free };
+        };
+
         self.buffer.close;
         self.buffer.free;
 
